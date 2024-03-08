@@ -7,6 +7,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
+# Veri setini etiketleme fonksiyonu
 def load_data(directory):
     texts = []
     labels = []
@@ -32,7 +33,7 @@ def load_data(directory):
 # Veri setini yeni dizinle yükleme
 texts, labels, label_dict = load_data('datasets/270koseyazisi')
 
-# 1. GloVe Vektörlerini Okuma
+# GloVe vektörlerini okuma
 def load_glove_model(glove_file):
     print("Loading Glove Model")
     model = {}
@@ -44,8 +45,8 @@ def load_glove_model(glove_file):
                 embedding = np.array([float(val) for val in split_line[1:]])
                 model[word] = embedding
             except ValueError:
-                print(f"Warning: Skipping word '{word}' with non-float values")
-    print(f"{len(model)} words loaded!")
+                print(f"Uyarı: Float olmayan değere sahip şu kelime atlandı: '{word}'")
+    print(f"{len(model)} adet kelime yüklendi!")
     return model
 
 
@@ -53,7 +54,7 @@ def load_glove_model(glove_file):
 glove_path = 'GloVe-Vectors/glove.840B.300d.txt'  # GloVe dosyasının yolu
 glove_model = load_glove_model(glove_path)
 
-# 2. Metinleri Vektörlere Dönüştürme
+# Metinleri vektör temsillerine dönüştürme
 def text_to_glove_vector(texts, glove_model):
     # Örnek bir kelimenin vektör boyutunu al
     vector_size = glove_model[next(iter(glove_model))].shape[0]
@@ -69,11 +70,10 @@ def text_to_glove_vector(texts, glove_model):
 
     return features
 
-# Metinleri GloVe vektörlerine dönüştürme
 X = text_to_glove_vector(texts, glove_model)
 y = np.array(labels)
 
-# Sınıflandırıcıları tanımlama (random_state parametresi olanlar için sabit değer atama)
+# Sınıflandırıcıları tanımlama (random_state parametresi için sabit değer atama)
 classifiers = {
     'Logistic Regression': LogisticRegression(max_iter=1000, random_state=42),
     'SVM': SVC(random_state=42),
