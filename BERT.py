@@ -1,9 +1,13 @@
+import os
 import numpy as np
 from transformers import BertTokenizer, BertModel
 import torch
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from tqdm import tqdm
 
 # Veri setini etiketleme fonksiyonu
@@ -21,12 +25,13 @@ def load_data(directory):
                     labels.append(label_dict[label])
     return texts, labels
 
+
 # Veri setini ve etiketlerini yükleme
 texts, labels = load_data('datasets/film_yorumlari')
 
 # BERT Tokenizer ve Model'in yüklenmesi
-tokenizer = BertTokenizer.from_pretrained('"dbmdz/bert-base-turkish-cased')
-model = BertModel.from_pretrained('"dbmdz/bert-base-turkish-cased')
+tokenizer = BertTokenizer.from_pretrained('dbmdz/bert-base-turkish-cased')
+model = BertModel.from_pretrained('dbmdz/bert-base-turkish-cased')
 
 # Metinleri BERT vektör temsillerine dönüştürme
 def bert_encode(texts, tokenizer, model, max_length):
@@ -38,29 +43,32 @@ def bert_encode(texts, tokenizer, model, max_length):
                                         return_attention_mask=True, return_tensors='pt')
         input_ids.append(encoded['input_ids'])
         attention_masks.append(encoded['attention_mask'])
-    
+
     input_ids = torch.cat(input_ids, dim=0)
     attention_masks = torch.cat(attention_masks, dim=0)
 
     with torch.no_grad():
         last_hidden_states = model(input_ids, attention_mask=attention_masks)
-    
+
     # Burada, BERT çıktısının son katmanındaki [CLS] token'inin temsillerini alıyoruz
-    features = last_hidden_states[0][:,0,:].numpy()
+    features = last_hidden_states[0][:, 0, :].numpy()
     return features
 
-# Metinlerin BERT temsillerini hesaplama (Bu adım biraz zaman alabilir)
+
+# Metinleri BERT vektör temsillerine dönüştürme ve veri seti hazırlama
 X = bert_encode(texts, tokenizer, model, max_length=128)
 y = np.array(labels)
 
-# Eğitim ve test setlerine bölme
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Sınıflandırıcıları tanımlama (random_state parametresi olanlar için sabit değer atama)
+classifiers = {
+    'Logistic Regression': LogisticRegression(max_iter=1000, random_state=42),
+    'SVM': SVC(random_state=42),
+    'Decision Tree': DecisionTreeClassifier(random_state=42),
+    'Random Forest': RandomForestClassifier(random_state=42),
+    'IBk (k-NN)': KNeighborsClassifier(n_neighbors=3)
+}
 
-# Basit bir sınıflandırıcı ile eğitim ve test
-clf = LogisticRegression(max_iter=1000)
-clf.fit(X_train, y_train)
-y_pred = clf.predict(X_test)
-
-# Doğruluk skorunun hesaplanması
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Accuracy: {accuracy:.4f}")
+# 5 fold çapraz doğrulama uygulama
+for name, clf in classifiers.items():
+    scores = cross_val_score(clf, X, y, cv=5, scoring='accuracy')
+    print(f"{name} Average Accuracy: {np.mean(scores):.4f} (+/- {np.std(scores):.4f})")
