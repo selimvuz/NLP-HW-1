@@ -10,6 +10,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
+# Veri setini etiketleme fonksiyonu
 def load_data(directory):
     texts = []
     labels = []
@@ -50,7 +51,7 @@ classifiers = {
     'IBk (k-NN)': KNeighborsClassifier(n_neighbors=3)
 }
 
-# Her bir sınıflandırıcı için eğitim ve test
+# Sınıflandırıcıları karşılaştırma ve 5 fold çapraz doğrulama uygulama
 for name, clf in classifiers.items():
     cv_scores = cross_val_score(clf, X, y, cv=5, scoring='accuracy')
     print(f"{name} Average Accuracy: {np.mean(cv_scores):.4f} (+/- {np.std(cv_scores):.4f})")
