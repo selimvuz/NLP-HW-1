@@ -1,13 +1,13 @@
 import os
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.neighbors import KNeighborsClassifier
 
 # Veri setini etiketleme fonksiyonu
 def load_data(directory):
@@ -28,27 +28,22 @@ def load_data(directory):
 # Veri setini yükleme
 texts, labels = load_data('datasets/film_yorumlari')
 
-# TF-IDF vektör temsilleri
+# Bag of Words vektör temsilleri
 vectorizer = TfidfVectorizer(max_features=10000)
 X = vectorizer.fit_transform(texts)
 y = np.array(labels)
 
-# Eğitim ve test setlerine ayırma
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42)
-
-# Sınıflandırıcıları tanımlama
+# Sınıflandırıcıları tanımlama ve random_state ayarlama
 classifiers = {
     'Naive Bayes': MultinomialNB(),
     'Logistic Regression': LogisticRegression(max_iter=1000),
     'SVM': SVC(),
-    'Decision Tree': DecisionTreeClassifier(),
-    'Random Forest': RandomForestClassifier()
+    'Decision Tree': DecisionTreeClassifier(random_state=42),
+    'Random Forest': RandomForestClassifier(random_state=42),
+    'IBk (k-NN)': KNeighborsClassifier(n_neighbors=3)
 }
 
-# Sınıflandırıcıları karşılaştırma
+# Sınıflandırıcıları karşılaştırma ve 5 fold çapraz doğrulama uygulama
 for name, clf in classifiers.items():
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f"{name} Accuracy: {accuracy:.4f}")
+    scores = cross_val_score(clf, X, y, cv=5)  # 5 fold CV
+    print(f"{name} Average Accuracy: {np.mean(scores):.4f} (+/- {np.std(scores):.4f})")
