@@ -28,11 +28,11 @@ def load_data(directory):
 # Veri setini ve etiketlerini yükleme
 texts, labels = load_data('datasets/film_yorumlari')
 
-# GPT-2 tokenizer ve modelin yüklenmesi
+# mGPT tokenizer ve modelin yüklenmesi
 tokenizer = GPT2Tokenizer.from_pretrained('ai-forever/mGPT')
 model = GPT2Model.from_pretrained('ai-forever/mGPT')
 
-# Metinleri GPT-2 vektör temsillerine dönüştürme
+# Metinleri mGPT vektör temsillerine dönüştürme
 def gpt2_encode(texts, tokenizer, model, max_length):
     features = []
     for text in tqdm(texts):
@@ -44,7 +44,7 @@ def gpt2_encode(texts, tokenizer, model, max_length):
         features.append(feature)
     return np.array(features)
 
-# Metinleri GPT-2 vektör temsillerine dönüştürme ve veri seti hazırlama
+# Metinleri mGPT vektör temsillerine dönüştürme ve veri seti hazırlama
 X = gpt2_encode(texts, tokenizer, model, max_length=128)
 y = np.array(labels)
 
