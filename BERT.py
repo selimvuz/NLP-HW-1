@@ -29,7 +29,7 @@ def load_data(directory):
 # Veri setini ve etiketlerini yükleme
 texts, labels = load_data('datasets/film_yorumlari')
 
-# BERT Tokenizer ve Model'in yüklenmesi
+# BERT tokenizer ve modelin yüklenmesi
 tokenizer = BertTokenizer.from_pretrained('dbmdz/bert-base-turkish-cased')
 model = BertModel.from_pretrained('dbmdz/bert-base-turkish-cased')
 
@@ -54,12 +54,10 @@ def bert_encode(texts, tokenizer, model, max_length):
     features = last_hidden_states[0][:, 0, :].numpy()
     return features
 
-
-# Metinleri BERT vektör temsillerine dönüştürme ve veri seti hazırlama
 X = bert_encode(texts, tokenizer, model, max_length=128)
 y = np.array(labels)
 
-# Sınıflandırıcıları tanımlama (random_state parametresi olanlar için sabit değer atama)
+# Sınıflandırıcıları tanımlama (random_state parametresi için sabit değer atama)
 classifiers = {
     'Logistic Regression': LogisticRegression(max_iter=1000, random_state=42),
     'SVM': SVC(random_state=42),
