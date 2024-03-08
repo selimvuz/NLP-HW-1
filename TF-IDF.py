@@ -28,7 +28,7 @@ def load_data(directory):
 # Veri setini yükleme
 texts, labels = load_data('datasets/film_yorumlari')
 
-# Bag of Words vektör temsilleri
+# TF-IDF vektör temsilleri
 vectorizer = TfidfVectorizer(max_features=10000)
 X = vectorizer.fit_transform(texts)
 y = np.array(labels)

@@ -10,6 +10,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 
+# Veri setini etiketleme fonksiyonu
 def load_data(directory):
     texts = []
     labels = []
@@ -35,7 +36,7 @@ def load_data(directory):
 # Veri setini yeni dizinle yükleme
 texts, labels, label_dict = load_data('datasets/270koseyazisi')
 
-# Bag of Words vektör temsilleri
+# TF-IDF vektör temsilleri
 vectorizer = TfidfVectorizer(max_features=10000)
 X = vectorizer.fit_transform(texts)
 y = labels
