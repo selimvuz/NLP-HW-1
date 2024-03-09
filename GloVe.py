@@ -24,7 +24,7 @@ def load_data(directory):
 
 # GloVe vektörlerini okuma
 def load_glove_model(glove_file):
-    print("Loading Glove Model")
+    print("GloVe modeli yükleniyor")
     model = {}
     with open(glove_file, 'r', encoding='utf-8') as f:
         for line in f:
@@ -40,7 +40,7 @@ def load_glove_model(glove_file):
 
 
 # GloVe dosya yolu
-glove_path = 'GloVe-Vectors/glove.840B.300d.txt'  # GloVe dosyasının yolu
+glove_path = 'GloVe-Vectors/glove.840B.300d.txt'
 glove_model = load_glove_model(glove_path)
 
 # Metinleri vektör temsillerine dönüştürme
